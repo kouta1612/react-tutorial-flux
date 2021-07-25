@@ -7,21 +7,29 @@ import * as TodoActions from "../actions/TodoActions"
 export default class Todos extends React.Component {
   constructor() {
     super();
+    this.setTodos = this.setTodos.bind(this)
     this.state = {
       todos: TodoStore.getAll()
     };
   }
 
   componentDidMount() {
-    TodoStore.on('change', () => {
-      this.setState({
-        todos: TodoStore.getAll()
-      })
+    TodoStore.on('change', this.setTodos)
+    console.log("count", TodoStore.listenerCount("change"))
+  }
+
+  componentWillUnmount() {
+    TodoStore.removeListener("change", this.setTodos)
+  }
+
+  setTodos() {
+    this.setState({
+      todos: TodoStore.getAll()
     })
   }
 
-  createTodo() {
-    TodoActions.createTodo("New Todo!")
+  reloadTodos() {
+    TodoActions.reloadTodos()
   }
 
   render() {
@@ -33,7 +41,7 @@ export default class Todos extends React.Component {
 
     return (
       <div>
-        <button onClick={this.createTodo.bind(this)}>Create!</button>
+        <button onClick={this.reloadTodos.bind(this)}>Reload!</button>
         <h1>Todos</h1>
         <ul>{TodoComponents}</ul>
       </div>
